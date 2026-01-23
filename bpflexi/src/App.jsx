@@ -1,11 +1,14 @@
 // File: src/App.jsx
 import React, { useState } from 'react';
 import { Link, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+
 import BlogPostList from './components/BlogPostList';
 import BlogPostForm from './components/BlogPostForm';
-import DeleteButton from './components/DeleteButton';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import Layout from './components/Layout';
+
+import CommentList from './components/CommentList';
+import CommentForm from './components/CommentForm';
 
 const App = () => {
   const [posts, setPosts] = useState([
@@ -51,15 +54,30 @@ const App = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<BlogPostList posts={posts.map(p => ({ ...p, url: `/posts/${p.id}` }))} />} />
+        <Route
+          path="/"
+          element={
+            <BlogPostList
+              posts={posts.map((p) => ({ ...p, url: `/posts/${p.id}` }))}
+            />
+          }
+        />
         <Route path="/new" element={<CreatePost onCreate={handleCreate} />} />
-        <Route path="/edit/:id" element={<EditPost posts={posts} onUpdate={handleUpdate} />} />
-        <Route path="/posts/:id" element={<PostView posts={posts} onDelete={handleDelete} />} />
+        <Route
+          path="/edit/:id"
+          element={<EditPost posts={posts} onUpdate={handleUpdate} />}
+        />
+        <Route
+          path="/posts/:id"
+          element={<PostView posts={posts} onDelete={handleDelete} />}
+        />
         <Route path="/about" element={<AboutPage />} />
       </Routes>
     </Layout>
   );
 };
+
+/* ---------------- CREATE POST ---------------- */
 
 const CreatePost = ({ onCreate }) => {
   const navigate = useNavigate();
@@ -71,6 +89,8 @@ const CreatePost = ({ onCreate }) => {
 
   return <BlogPostForm onSubmit={handleSubmit} />;
 };
+
+/* ---------------- EDIT POST ---------------- */
 
 const EditPost = ({ posts, onUpdate }) => {
   const { id } = useParams();
@@ -87,11 +107,15 @@ const EditPost = ({ posts, onUpdate }) => {
   return <BlogPostForm post={post} onSubmit={handleSubmit} />;
 };
 
+/* ---------------- POST VIEW + COMMENTS ---------------- */
+
 const PostView = ({ posts, onDelete }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const post = posts.find((p) => p.id.toString() === id);
+
   const [showConfirm, setShowConfirm] = useState(false);
+  const [comments, setComments] = useState([]);
 
   if (!post) return <p>Post not found.</p>;
 
@@ -99,61 +123,74 @@ const PostView = ({ posts, onDelete }) => {
     onDelete(post.id);
     navigate('/');
   };
-return (
-  <div className="blog-post-item" style={{ padding: '20px' }}>
-    <h2>{post.title}</h2>
-    <p><strong>Author:</strong> {post.author}</p>
-    <p><strong>Date:</strong> {new Date(post.date).toLocaleDateString()}</p>
-    <p>{post.content}</p>
 
-    {/* Button Container */}
-    <div style={{
-  display: 'flex',
-  flexDirection: 'row', // ← forces them side by side
-  alignItems: 'center',
-  gap: '12px',
-  height: '100px',
+  const addComment = (comment) => {
+    setComments((prev) => [...prev, comment]);
+  };
 
-  marginTop: '20px'
-}}>
-  {/* Edit Button */}
-  <Link to={`/edit/${post.id}`} style={{
-    padding: '10px 16px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    textDecoration: 'none',
-    borderRadius: '4px',
-    fontSize: '14px',
-    border: 'none'
-  }}>
-    Edit Post
-  </Link>
+  return (
+    <div style={{ padding: '20px' }}>
+      <h2>{post.title}</h2>
+      <p><strong>Author:</strong> {post.author}</p>
+      <p><strong>Date:</strong> {new Date(post.date).toLocaleDateString()}</p>
+      <p>{post.content}</p>
 
-  {/* Delete Button (temporarily styled manually) */}
-  <button onClick={() => setShowConfirm(true)} style={{
-    padding: '10px 16px',
-    backgroundColor: '#dc3545',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '14px',
-    cursor: 'pointer',
-    alignSelf: 'centre',
-  }}>
-    Delete Post
-  </button>
-</div>
+      {/* ACTION BUTTONS */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginTop: '20px',
+        }}
+      >
+        <Link
+          to={`/edit/${post.id}`}
+          style={{
+            padding: '10px 16px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '4px',
+            fontSize: '14px',
+          }}
+        >
+          Edit Post
+        </Link>
 
+        <button
+          onClick={() => setShowConfirm(true)}
+          style={{
+            padding: '10px 16px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '14px',
+            cursor: 'pointer',
+          }}
+        >
+          Delete Post
+        </button>
+      </div>
 
-    <ConfirmationDialog
-      isOpen={showConfirm}
-      onClose={() => setShowConfirm(false)}
-      onConfirm={handleConfirmDelete}
-    />
-  </div>
-);
+      {/* COMMENTS SECTION */}
+      <hr style={{ margin: '30px 0' }} />
+      <h3>Comments</h3>
 
+      <CommentList comments={comments} />
+      <CommentForm onSubmit={addComment} isLoggedIn={false} />
+
+      <ConfirmationDialog
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleConfirmDelete}
+      />
+    </div>
+  );
 };
+
+/* ---------------- ABOUT ---------------- */
 
 const AboutPage = () => (
   <div style={{ padding: '20px' }}>
