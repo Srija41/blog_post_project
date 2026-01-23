@@ -1,0 +1,86 @@
+/* -------- Comment List -------- */
+.comment {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.comment-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.comment-name {
+  font-weight: bold;
+}
+
+.comment-date {
+  font-size: 13px;
+  color: #666;
+}
+
+.comment-text {
+  margin: 0;
+}
+
+/* -------- Comment Form -------- */
+.comment-form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-form input,
+.comment-form textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.comment-form button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* -------- Mobile View -------- */
+@media (max-width: 768px) {
+  .comment {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .comment-avatar {
+    align-self: center;
+  }
+
+  .comment-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .comment-form button {
+    width: 100%;
+    align-self: stretch;
+  }
+}
